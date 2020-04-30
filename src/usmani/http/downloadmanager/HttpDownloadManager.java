@@ -50,17 +50,17 @@ public class HttpDownloadManager {
 		long sizeMB=size-start;
 		//calculate size in MBs from bytes
 		sizeMB=(size/1024)/1024;
-		//if file is greater than 3 MB
+		//if file is greater than 3 MBs
 		if (sizeMB>=3){
-			//number of threads are 5
+			//number of threads are 3
 			return 3;
 		}
-		//if less than 3MB and greater than or equal to 2MBs
-		else if (sizeMB<3&& sizeMB>=2){
-			//number of threads are 3
+		//if less than greater than or equal to 2MBs
+		else if (sizeMB>=2){
+			//number of threads are 2
 			return 2;
 		}else{
-			//number of threads are 2
+			//number of threads are 1
 			return 1;
 		}		
 	}

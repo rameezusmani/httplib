@@ -76,16 +76,7 @@ public class Downloader extends HttpClient implements Runnable{
 			if (read==-1){	
 				//if data is in buffer
 				if (bytesCount>0){
-					//create the download chunk
-					DownloadedChunk c=new DownloadedChunk();
-					//set values
-					c.setValues(buffer,bytesCount,start);
-					//save data
-					c.setDownloader(this);
-					//save bytes
-					hDownloader.saveBytes(c);
-					//increment the number of bytes downloaded
-					bytesDownloaded+=bytesCount;
+					createDownloadedChunk(buffer,bytesCount);
 					//set bytesCount to 0
 					bytesCount=0;
 				}
@@ -105,19 +96,11 @@ public class Downloader extends HttpClient implements Runnable{
 				bytesCount+=read;
 				//if buffer is completely filled
 				if (bytesCount==MAX_BUFFER_SIZE){
-					//reference to the chunk downloaded
-					DownloadedChunk chunk=new DownloadedChunk();
-					//initialize values in chunk
-					chunk.setValues(buffer,bytesCount,start);
-					//raise save event in downloader
-					chunk.setDownloader(this);
-					hDownloader.saveBytes(chunk);
+					createDownloadedChunk(buffer,bytesCount);
 					//add number of bytes read to start
 					start+=bytesCount;
 					//set offset to zero
 					offset=0;
-					//increment the bytes downloaded
-					bytesDownloaded+=bytesCount;
 					//set number of bytes in buffer to 0
 					bytesCount=0;
 				}
@@ -129,6 +112,23 @@ public class Downloader extends HttpClient implements Runnable{
 			}
 		}
 	}
+	
+	private DownloadedChunk createDownloadedChunk(byte[] buffer,int bytesCount)
+	throws Exception {
+		//reference to the chunk downloaded
+		DownloadedChunk chunk=new DownloadedChunk();
+		//initialize values in chunk
+		chunk.setValues(buffer,bytesCount,start);
+		//raise save event in downloader
+		chunk.setDownloader(this);
+		//save bytes
+		hDownloader.saveBytes(chunk);
+		//increment the number of bytes downloaded
+		bytesDownloaded+=bytesCount;
+		//return created chunk
+		return chunk;
+	}
+	
 	/*
 	 * returns the id of the thread
 	 */

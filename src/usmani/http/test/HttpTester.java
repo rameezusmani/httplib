@@ -1,6 +1,7 @@
 package usmani.http.test;
 
 import usmani.http.*;
+import usmani.http.downloadmanager.*;
 
 public class HttpTester {
 
@@ -12,6 +13,9 @@ public class HttpTester {
 			cl.setRequestMethod(HttpClient.REQUEST_METHOD_HEAD);
 			HttpResponse response=cl.executeRequest(true);
 			cl.close();
+			
+			HttpDownloadManager mgr=new HttpDownloadManager();
+			
 		}catch(Exception ex){
 			System.out.println("Error: "+ex.getMessage());
 			ex.printStackTrace();
