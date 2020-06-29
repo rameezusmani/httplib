@@ -9,9 +9,10 @@ public class HttpTester {
 		System.out.println("Start");
 		try{
 			HttpClient cl=new HttpClient(new java.net.URL("http://rameezusmani.com"));
-			cl.openConnection();
 			cl.setRequestMethod(HttpClient.REQUEST_METHOD_GET);
 			HttpResponse response=cl.executeRequest(true);
+			String str=response.getAsString();
+			System.out.println(str);
 			cl.close();
 			
 			HttpDownloadManager mgr=new HttpDownloadManager();
