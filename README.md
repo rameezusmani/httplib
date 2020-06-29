@@ -49,8 +49,8 @@ https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests
 
 ###### Resume a previously paused file download
 
-    **_For example if you were downloading a file that was 20MB large but only 2KB(2048 bytes) was downloaded and then for some reason you aborted the download. If you want to resume that download from after 2KB you can do like this_**
-    
+**_For example if you were downloading a file that was 20MB large but only 2KB(2048 bytes) was downloaded and then for some reason you aborted the download. If you want to resume that download from after 2KB you can do like this_**
+
         HttpDownloadManager mgr=new HttpDownloadManager();
         HttpDownloadFile file=new HttpDownloadFile(new java.net.URL("http://rameezusmani.com"));
         **file.setBytesDone(2048)** //indicatingt hat 2KB file was already downloaded now start downloading from 2049th byte
