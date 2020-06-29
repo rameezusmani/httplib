@@ -53,7 +53,7 @@ https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests
 
         HttpDownloadManager mgr=new HttpDownloadManager();
         HttpDownloadFile file=new HttpDownloadFile(new java.net.URL("http://rameezusmani.com"));
-        **file.setBytesDone(2048)** //indicatingt hat 2KB file was already downloaded now start downloading from 2049th byte
+        file.setBytesDone(2048) //indicating that 2KB file was already downloaded now start downloading from 2049th byte
         file.setDestinationPath("D:\\rameez.html");
         file.open();
         mgr.setDownloadEventListener(new DownloadEventListener(){
