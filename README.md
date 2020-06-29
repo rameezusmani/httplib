@@ -6,6 +6,7 @@ Java based HTTP Client library and a pause/resume supported multi threaded HTTP 
 - You have a complete download manager built into the library
 - Download large files and library will take care of number of threads to run simultaneously to download files quickly
 - Library will itself detect whether file you are downloading has resume supported or not
+- Only java built in classes are used. No need to download any external library
 
 To understand how pause/resume works using bytes range you can read this:
 https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests
