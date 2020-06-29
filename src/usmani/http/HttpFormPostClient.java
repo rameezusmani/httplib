@@ -8,7 +8,8 @@ extends HttpClient{
 	
 	protected Hashtable<String,String> postFormData;
 	
-	public HttpFormPostClient(URL url,Hashtable<String,String> formData){
+	public HttpFormPostClient(URL url,Hashtable<String,String> formData)
+	throws Exception {
 		super(url);
 		this.postFormData=formData;
 	}

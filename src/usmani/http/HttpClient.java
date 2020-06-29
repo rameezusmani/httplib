@@ -37,12 +37,16 @@ public class HttpClient {
 	
 	private boolean readError=false;
 	
+	//empty constructor
+	//user must called setURL before any other operation
 	public HttpClient(){
 		
 	}
 	
-	public HttpClient(URL url) {
+	public HttpClient(URL url) 
+	throws Exception {
 		this.url=url;
+		openConnection();
 	}
 	
 	public void openConnection()
@@ -79,8 +83,11 @@ public class HttpClient {
 		return url;
 	}
 	
-	public void setURL(URL u){
+	public void setURL(URL u)
+	throws Exception {
+		this.close(); //try close if already connection opened
 		this.url=u;
+		this.openConnection();
 	}
 	
 	public URL getCurrentURL(){

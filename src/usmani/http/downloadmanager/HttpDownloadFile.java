@@ -18,6 +18,10 @@ public class HttpDownloadFile extends HttpFile {
 		output=new FileOutputStream(destinationPath);
 	}
 	
+	public void close() throws Exception {
+		output.close();
+	}
+	
 	public FileOutputStream getFileOutputStream(){
 		return output;
 	}

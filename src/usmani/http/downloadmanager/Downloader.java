@@ -21,12 +21,15 @@ public class Downloader extends HttpClient implements Runnable{
 	//id of this downloader
 	private int id=0;
 	
-	public Downloader(URL u,HttpDownloadManager d){
-		this.setURL(u);
-		this.setHttpDownloader(d);
+	public Downloader(){
+		
 	}
 	
-	public Downloader(){}
+	public Downloader(URL u,HttpDownloadManager d)
+	throws Exception {
+		super(u);
+		this.setHttpDownloader(d);
+	}
 	
 	public void setHttpDownloader(HttpDownloadManager d){
 		this.hDownloader=d;
@@ -49,8 +52,6 @@ public class Downloader extends HttpClient implements Runnable{
 		addRequestHeader("Host",getURL().getHost());
 		//add Range header
 		addRequestHeader("Range",range);
-		//open connection
-		this.openConnection();
 		//read response from the client
 		HttpResponse response=this.executeRequest(false);
 		//get input stream of the response

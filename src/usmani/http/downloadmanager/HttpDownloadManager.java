@@ -10,8 +10,6 @@ public class HttpDownloadManager {
 	
 	//event listener
 	private DownloadEventListener eventListener=null;
-	//destination file stream
-	private FileOutputStream fos;
 	//pool of downloaded chunks
 	private ChunksPool pool;
 	//current offset
@@ -71,11 +69,9 @@ public class HttpDownloadManager {
 	 * e.g. filesize etc
 	 */	
 	private void setParams() throws Exception {
-		HttpClient request=new HttpClient();
+		HttpClient request=new HttpClient(downFile.getURL());
 		//set request type to head
 		request.setRequestMethod(HttpClient.REQUEST_METHOD_HEAD);
-		//set document path
-		request.setURL(downFile.getURL());
 		//insert host header
 		request.addRequestHeader("Host",downFile.getURL().getHost());
 		//get response object
@@ -119,8 +115,8 @@ public class HttpDownloadManager {
 	 */
 	public void download(HttpDownloadFile file) throws Exception{
 		try{
+			//file must be opened before sending to download here
 			downFile=file;
-			fos=file.getFileOutputStream();
 			start=file.getBytesDone();
 			
 			//set the parameters of the file
@@ -134,81 +130,62 @@ public class HttpDownloadManager {
 			fileSaver.setEventListener(eventListener);
 			//set starting offset of file
 			fileSaver.setStartingOffset(start);
-			//set output file stream
-			fileSaver.setFileStream(fos);
 			//start the writing thread
 			fileSaver.start();
 			
 			long bStart=start;
-			int threadCount=0;
-			long bCount=downFile.getFileSize();
+			int threadCount=1; //default thread size is 1
+			long bCount=downFile.getFileSize(); //size of file to be downloaded
 			
+			//if eventlistener is registered
+			if (eventListener!=null){
+				//raise start event
+				eventListener.start(downFile);
+				//publish progress event
+				eventListener.progress(downFile,bStart);
+			}
 			//if resume is supported
 			if (downFile.isResumeSupported()){
-				//if eventlistener is registered
-				if (eventListener!=null){
-					//raise start event
-					eventListener.start(downFile);
-				}
-				//if event listener is registered
-				if (eventListener!=null){
-					//raise progress event
-					eventListener.progress(downFile,bStart);
-				}
-				//get number of threads for the filesize
 				threadCount=getNumberOfThreads(downFile.getFileSize());
-				thExecutor=Executors.newFixedThreadPool(threadCount);
 				//calculate number of bytes for each thread
-				bCount=downFile.getFileSize()/threadCount;
-				//iterate till count
-				for (int a=0;a<threadCount;a++){			
-					//get a thread from the pool
-					Downloader d=threadPool.getDownloadThread();
-					//set starting byte to bStart
-					d.setStart(bStart);
-					//set id
-					d.setID(a+1);
-					//if not last thread
-					if (a!=(threadCount-1)){
-						//set ending value to count+start-1
-						d.setEnd(bStart+bCount-1);
-						//add count to start
-						bStart+=bCount;
-					}
-					else{
-						d.setEnd(-1);
-					}
-					//increment the threads running
-					numThreads++;
-					//start downloading
-					thExecutor.execute(d);
-				}
-			}else{				
-				//get downloading thread from the pool
+				//default was size of file but now as there will be multiple threads
+				//so each thread will get slice of data (number of bytes)
+				bCount=(long)downFile.getFileSize()/threadCount;
+			}
+			//create java thread pool to execute one or multiple threads for downloading
+			thExecutor=Executors.newFixedThreadPool(threadCount);
+			//iterate till thread count
+			for (int a=0;a<threadCount;a++){			
+				//get a thread from the pool
 				Downloader d=threadPool.getDownloadThread();
-				//if no thread
 				if (d==null){				
-					//if eventlistener is registered
 					if (eventListener!=null){
 						//raise an exception
 						eventListener.exception(null,new Exception("Not enough threads"));
 					}
-				}else{
-					//set starting offset
-					d.setStart(start);
-					//set id to 1 (default)
-					d.setID(1);
-					//increment the number of threads
-					numThreads++;
-					//if event listener is registered
-					if (eventListener!=null){
-						//raise start event
-						eventListener.start(downFile);
-					}
-					//run downloader
-					thExecutor.execute(d);
+					continue;
 				}
-			}			
+				d.setHttpDownloader(this);
+				d.setURL(file.getURL());
+				//set starting byte to bStart
+				d.setStart(bStart);
+				//set id
+				d.setID(a+1);
+				//if not last thread
+				if (a!=(threadCount-1)){
+					//set ending value to count+start-1
+					d.setEnd(bStart+bCount-1);
+					//add count to start
+					bStart+=bCount;
+				}else{
+					//set end to -1 which means till the end of file
+					d.setEnd(-1);
+				}
+				//increment the threads running
+				numThreads++;
+				//start downloading
+				thExecutor.execute(d);
+			}
 		}catch (Exception ex){
 			throw ex;
 		}
@@ -221,7 +198,7 @@ public class HttpDownloadManager {
 	 * 
 	 * del[in]: event listener to be registered
 	 */
-	public void setEventListener(DownloadEventListener del){
+	public void setDownloadEventListener(DownloadEventListener del){
 		eventListener=del;
 	}
 	
@@ -245,8 +222,10 @@ public class HttpDownloadManager {
 			}
 			//stop the writing thread
 			fileSaver.setCanRun(false);
+			//wait for writing thread
+			fileSaver.join();
 			//close the file stream
-			fos.close();
+			downFile.close();
 			//if eventlistener is registered
 			if (eventListener!=null){	
 				//raise completion event

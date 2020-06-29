@@ -12,7 +12,8 @@ extends HttpFormPostClient {
 	private List<HttpPart> files;
 	private String boundary=DEFAULT_BOUNDARY;
 	
-	public HttpMultipartPostClient(URL url,Hashtable<String,String> formData,List<HttpPart> files){
+	public HttpMultipartPostClient(URL url,Hashtable<String,String> formData,List<HttpPart> files)
+	throws Exception {
 		super(url,formData);
 		this.files=files;
 	}
